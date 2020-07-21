@@ -1,5 +1,13 @@
 class MineData {
   final bool active;
 
-  MineData({this.active = false});
+  bool left, right, top, bottom;
+
+  MineData({
+    this.active = false,
+    this.left = false,
+    this.right = false,
+    this.top = false,
+    this.bottom = false,
+  });
 }
