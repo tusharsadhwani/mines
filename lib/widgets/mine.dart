@@ -18,40 +18,97 @@ class Mine extends StatefulWidget {
 }
 
 class _MineState extends State<Mine> with TickerProviderStateMixin {
-  AnimationController _animationController;
-  Animation<double> _animation;
+  MyAnimation active,
+      left,
+      right,
+      top,
+      bottom,
+      topLeft,
+      topRight,
+      bottomLeft,
+      bottomRight;
+
+  MyChangeNotifier animations;
 
   @override
   void initState() {
     super.initState();
 
-    //TODO: make funciton to spawn a new animation
-    _animationController = AnimationController(
-      duration: Duration(milliseconds: 2000),
-      vsync: this,
-    );
+    active = MyAnimation(this);
+    top = MyAnimation(this);
+    left = MyAnimation(this);
+    right = MyAnimation(this);
+    bottom = MyAnimation(this);
+    topLeft = MyAnimation(this);
+    topRight = MyAnimation(this);
+    bottomLeft = MyAnimation(this);
+    bottomRight = MyAnimation(this);
 
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-    // Now the issue is, corners need to take in account the topLeft ...
-    // tiles as well, not just the adjacent edge data.
-    //
-    // Figure it out, champ.
+    animations = MyChangeNotifier();
+
+    active.addListener(animations.update);
+    top.addListener(animations.update);
+    left.addListener(animations.update);
+    right.addListener(animations.update);
+    bottom.addListener(animations.update);
+    topLeft.addListener(animations.update);
+    topRight.addListener(animations.update);
+    bottomLeft.addListener(animations.update);
+    bottomRight.addListener(animations.update);
   }
 
   @override
   void didUpdateWidget(Mine oldWidget) {
     if (widget.special) {
       print('updated dependencies!');
+//       print('''
+// top = ${widget.mineData.top}
+// left = ${widget.mineData.left}
+// right = ${widget.mineData.right}
+// bottom = ${widget.mineData.bottom}''');
     }
 
     if (oldWidget.mineData.active != widget.mineData.active) {
-      if (widget.mineData.active)
-        _animationController.forward();
-      else {
-        _animationController.reverse();
+      if (widget.mineData.active) {
+        active.forward();
+        if (!widget.mineData.top) top.forward();
+        if (!widget.mineData.left) left.forward();
+        if (!widget.mineData.right) right.forward();
+        if (!widget.mineData.bottom) bottom.forward();
+        if (widget.mineData.topLeft) topLeft.forward();
+        if (widget.mineData.topRight) topRight.forward();
+        if (widget.mineData.bottomLeft) bottomLeft.forward();
+        if (widget.mineData.bottomRight) bottomRight.forward();
+      } else {
+        active.reverse();
+        top.reverse();
+        left.reverse();
+        right.reverse();
+        bottom.reverse();
+        topLeft.reverse();
+        topRight.reverse();
+        bottomLeft.reverse();
+        bottomRight.reverse();
+      }
+    } else {
+      if (widget.mineData.active) {
+        if (!widget.mineData.top) top.forward();
+        if (!widget.mineData.left) left.forward();
+        if (!widget.mineData.right) right.forward();
+        if (!widget.mineData.bottom) bottom.forward();
+        if (widget.mineData.topLeft) topLeft.forward();
+        if (widget.mineData.topRight) topRight.forward();
+        if (widget.mineData.bottomLeft) bottomLeft.forward();
+        if (widget.mineData.bottomRight) bottomRight.forward();
+
+        if (widget.mineData.top) top.reverse();
+        if (widget.mineData.left) left.reverse();
+        if (widget.mineData.right) right.reverse();
+        if (widget.mineData.bottom) bottom.reverse();
+        if (!widget.mineData.topLeft) topLeft.reverse();
+        if (!widget.mineData.topRight) topRight.reverse();
+        if (!widget.mineData.bottomLeft) bottomLeft.reverse();
+        if (!widget.mineData.bottomRight) bottomRight.reverse();
       }
     }
     super.didUpdateWidget(oldWidget);
@@ -59,54 +116,43 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _animationController.dispose();
+    active.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final topLeft = !widget.mineData.top && !widget.mineData.left;
-    final topRight = !widget.mineData.top && !widget.mineData.right;
-    final bottomLeft = !widget.mineData.bottom && !widget.mineData.left;
-    final bottomRight = !widget.mineData.bottom && !widget.mineData.right;
+    final topAndLeft = !widget.mineData.top && !widget.mineData.left;
+    final topAndRight = !widget.mineData.top && !widget.mineData.right;
+    final bottomAndLeft = !widget.mineData.bottom && !widget.mineData.left;
+    final bottomAndRight = !widget.mineData.bottom && !widget.mineData.right;
     return AnimatedBuilder(
-      animation: _animation,
+      animation: animations,
       builder: (_, __) => ClipPath(
-        clipper: CornerClipper(
-            // TODO: Implement separate animations for every single edge and verex?
-            //  topLeftAnimation.value,
-            // topRightAnimation.value,
-            // bottomLeftAnimation.value,
-            // bottomRightAnimation.value,
-            // 10
-            topLeft,
-            topRight,
-            bottomLeft,
-            bottomRight,
-            10 * _animation.value),
+        clipper: CornerClipper(topLeft, topRight, bottomLeft, bottomRight),
         child: Container(
           padding: EdgeInsets.fromLTRB(
-            !widget.mineData.left ? 10 * _animation.value : 0,
-            !widget.mineData.top ? 10 * _animation.value : 0,
-            !widget.mineData.right ? 10 * _animation.value : 0,
-            !widget.mineData.bottom ? 10 * _animation.value : 0,
+            left.animation.value,
+            top.animation.value,
+            right.animation.value,
+            bottom.animation.value,
           ),
           child: GestureDetector(
             onTap: widget.toggleMine,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
-                  topLeft: topLeft
-                      ? Radius.circular(10 * _animation.value)
+                  topLeft: topAndLeft
+                      ? Radius.circular(active.animation.value)
                       : Radius.zero,
-                  topRight: topRight
-                      ? Radius.circular(10 * _animation.value)
+                  topRight: topAndRight
+                      ? Radius.circular(active.animation.value)
                       : Radius.zero,
-                  bottomLeft: bottomLeft
-                      ? Radius.circular(10 * _animation.value)
+                  bottomLeft: bottomAndLeft
+                      ? Radius.circular(active.animation.value)
                       : Radius.zero,
-                  bottomRight: bottomRight
-                      ? Radius.circular(10 * _animation.value)
+                  bottomRight: bottomAndRight
+                      ? Radius.circular(active.animation.value)
                       : Radius.zero,
                 ),
                 color: Theme.of(context).primaryColor,
@@ -120,51 +166,58 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
 }
 
 class CornerClipper extends CustomClipper<Path> {
-  double radius;
-  bool topLeft, topRight, bottomLeft, bottomRight;
-  CornerClipper(this.topLeft, this.topRight, this.bottomLeft, this.bottomRight,
-      this.radius);
+  MyAnimation topLeft, topRight, bottomLeft, bottomRight;
+  CornerClipper(this.topLeft, this.topRight, this.bottomLeft, this.bottomRight);
 
   @override
   Path getClip(Size size) {
     final path = Path();
-    path.lineTo(0, topLeft ? radius : 0);
-    if (topLeft)
-      path.arcTo(
-        Rect.fromCircle(center: Offset.zero, radius: radius),
-        pi / 2,
-        -pi / 2,
-        false,
-      );
+    path.lineTo(0, topLeft.value);
+    path.arcTo(
+      Rect.fromCircle(center: Offset.zero, radius: topLeft.value),
+      pi / 2,
+      -pi / 2,
+      false,
+    );
 
-    path.lineTo(size.width - (topRight ? radius : 0), 0);
-    if (topRight)
-      path.arcTo(
-        Rect.fromCircle(center: Offset(size.width, 0), radius: radius),
-        pi,
-        -pi / 2,
-        false,
-      );
+    path.lineTo(size.width - topRight.value, 0);
+    path.arcTo(
+      Rect.fromCircle(
+        center: Offset(size.width, 0),
+        radius: topRight.value,
+      ),
+      pi,
+      -pi / 2,
+      false,
+    );
 
-    path.lineTo(size.width, size.height - (bottomRight ? radius : 0));
-    if (bottomRight)
-      path.arcTo(
-        Rect.fromCircle(center: Offset(size.width, size.width), radius: radius),
-        3 * pi / 2,
-        -pi / 2,
-        false,
-      );
+    path.lineTo(
+      size.width,
+      size.height - bottomRight.value,
+    );
 
-    path.lineTo(bottomLeft ? radius : 0, size.height);
-    if (bottomLeft)
-      path.arcTo(
-        Rect.fromCircle(center: Offset(0, size.width), radius: radius),
-        0,
-        -pi / 2,
-        false,
-      );
+    path.arcTo(
+      Rect.fromCircle(
+        center: Offset(size.width, size.width),
+        radius: bottomRight.value,
+      ),
+      3 * pi / 2,
+      -pi / 2,
+      false,
+    );
 
-    path.lineTo(0, topLeft ? radius : 0);
+    path.lineTo(bottomLeft.value, size.height);
+    path.arcTo(
+      Rect.fromCircle(
+        center: Offset(0, size.width),
+        radius: bottomLeft.value,
+      ),
+      0,
+      -pi / 2,
+      false,
+    );
+
+    path.lineTo(0, topLeft.value);
     return path;
   }
 
@@ -172,5 +225,54 @@ class CornerClipper extends CustomClipper<Path> {
   bool shouldReclip(CornerClipper oldClipper) {
     //TODO: probably needs refactoring
     return true;
+  }
+}
+
+class MyAnimation {
+  AnimationController animationController;
+  Animation<double> animation;
+
+  MyAnimation(TickerProvider parent) {
+    animationController = AnimationController(
+      duration: Duration(milliseconds: 2000),
+      vsync: parent,
+    );
+
+    animation = Tween(begin: 0.0, end: 10.0).animate(
+      CurvedAnimation(
+        parent: animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  void dispose() {
+    animationController.dispose();
+  }
+
+  double get value {
+    return animation.value;
+  }
+
+  void forward() {
+    animationController.forward();
+  }
+
+  void end() {
+    animationController.value = 1;
+  }
+
+  void reverse() {
+    animationController.reverse();
+  }
+
+  void addListener(void Function() change) {
+    animationController.addListener(change);
+  }
+}
+
+class MyChangeNotifier extends ChangeNotifier {
+  void update() {
+    notifyListeners();
   }
 }
