@@ -19,9 +19,6 @@ class MyApp extends StatelessWidget {
         ),
         accentColor: Colors.white,
         primaryColor: primaryColor,
-        colorScheme: ColorScheme.light(
-          primary: primaryColor,
-        ),
         dialogTheme: DialogTheme(
           backgroundColor: backgroundColor,
           titleTextStyle: TextStyle(
@@ -31,13 +28,6 @@ class MyApp extends StatelessWidget {
         ),
         canvasColor: backgroundColor,
         scaffoldBackgroundColor: backgroundColor,
-        inputDecorationTheme: InputDecorationTheme(
-          labelStyle: TextStyle(color: Colors.white60),
-          border: OutlineInputBorder(),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white60),
-          ),
-        ),
         textTheme: TextTheme(
           headline1: TextStyle(color: primaryColor),
           headline2: TextStyle(

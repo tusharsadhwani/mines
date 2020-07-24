@@ -9,34 +9,131 @@ class Mines extends StatefulWidget {
 }
 
 class _MinesState extends State<Mines> {
-  final rows = 5;
-  final cols = 7;
+  final rows = 7;
+  final cols = 5;
 
-  List<MineData> matrix;
+  List<List<MineData>> matrix;
+
+  // mines[index] might be too slow
+  List<MineData> get mines {
+    return [
+      for (var row in matrix) ...row,
+    ];
+  }
+
+  List<int> listToIndices(int index) {
+    return [index ~/ cols, index % cols];
+  }
+
+  void toggleMine(int index) {
+    final indices = listToIndices(index);
+    final row = indices[0], col = indices[1];
+
+    final mineData = matrix[row][col];
+
+    final newMineData = MineData(
+      active: !mineData.active,
+    );
+    setState(() {
+      matrix[row][col] = newMineData;
+      recalculateSides();
+    });
+  }
+
+  void recalculateSides() {
+    for (int row = 0; row < rows; row++) {
+      for (int col = 0; col < cols; col++) {
+        final mineData = matrix[row][col];
+
+        var newTop = false,
+            newLeft = false,
+            newRight = false,
+            newBottom = false,
+            newTopLeft = false,
+            newTopRight = false,
+            newBottomLeft = false,
+            newBottomRight = false;
+
+        bool topExists = row > 0;
+        bool leftExists = col > 0;
+        bool rightExists = col + 1 < cols;
+        bool bottomExists = row + 1 < rows;
+        if (topExists) {
+          newTop = matrix[row - 1][col].active;
+        }
+        if (leftExists) {
+          newLeft = matrix[row][col - 1].active;
+        }
+        if (rightExists) {
+          newRight = matrix[row][col + 1].active;
+        }
+        if (bottomExists) {
+          newBottom = matrix[row + 1][col].active;
+        }
+
+        if (topExists && leftExists && newTop && newLeft) {
+          newTopLeft = !matrix[row - 1][col - 1].active;
+        }
+        if (topExists && rightExists && newTop && newRight) {
+          newTopRight = !matrix[row - 1][col + 1].active;
+        }
+        if (bottomExists && leftExists && newBottom && newLeft) {
+          newBottomLeft = !matrix[row + 1][col - 1].active;
+        }
+        if (bottomExists && rightExists && newBottom && newRight) {
+          newBottomRight = !matrix[row + 1][col + 1].active;
+        }
+
+        matrix[row][col] = MineData(
+          active: mineData.active,
+          top: newTop,
+          left: newLeft,
+          right: newRight,
+          bottom: newBottom,
+          topLeft: newTopLeft,
+          topRight: newTopRight,
+          bottomLeft: newBottomLeft,
+          bottomRight: newBottomRight,
+        );
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    matrix = List<MineData>();
+    matrix = List<List<MineData>>();
 
-    for (int i = 0; i < rows * cols; i++) {
-      matrix.add(MineData());
+    for (int i = 0; i < rows; i++) {
+      matrix.add([]);
+      for (int j = 0; j < cols; j++) {
+        matrix[i].add(MineData());
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: EdgeInsets.all(8.0),
-      shrinkWrap: true,
-      itemCount: matrix.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: rows,
-      ),
-      itemBuilder: (_, index) => AspectRatio(
-        aspectRatio: 1,
-        child: Mine(matrix[index]),
-      ),
+    return AspectRatio(
+      aspectRatio: 5 / 7,
+      child: GridView.builder(
+          padding: EdgeInsets.all(8.0),
+          shrinkWrap: true,
+          itemCount: rows * cols,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: cols,
+          ),
+          itemBuilder: (_, index) {
+            final indices = listToIndices(index);
+            final row = indices[0], col = indices[1];
+            return AspectRatio(
+              aspectRatio: 1,
+              child: Mine(
+                mineData: matrix[row][col],
+                toggleMine: () => toggleMine(index),
+              ),
+            );
+          }),
     );
   }
 }
