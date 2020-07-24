@@ -1,4 +1,4 @@
-import 'dart:math' show pi;
+import 'dart:math' show min, pi;
 
 import 'package:flutter/material.dart';
 
@@ -8,20 +8,16 @@ class Mine extends StatefulWidget {
   final MineData mineData;
   final void Function() toggleMine;
 
-  //TODO: REMOVE
-  final bool special;
-
-  Mine({@required this.mineData, @required this.toggleMine, this.special});
+  Mine({@required this.mineData, @required this.toggleMine});
 
   @override
   _MineState createState() => _MineState();
 }
 
 class _MineState extends State<Mine> with TickerProviderStateMixin {
-  MyAnimation active,
+  MyAnimation top,
       left,
       right,
-      top,
       bottom,
       topLeft,
       topRight,
@@ -34,7 +30,6 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    active = MyAnimation(this);
     top = MyAnimation(this);
     left = MyAnimation(this);
     right = MyAnimation(this);
@@ -46,7 +41,6 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
 
     animations = MyChangeNotifier();
 
-    active.addListener(animations.update);
     top.addListener(animations.update);
     left.addListener(animations.update);
     right.addListener(animations.update);
@@ -59,18 +53,8 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
 
   @override
   void didUpdateWidget(Mine oldWidget) {
-    if (widget.special) {
-      print('updated dependencies!');
-//       print('''
-// top = ${widget.mineData.top}
-// left = ${widget.mineData.left}
-// right = ${widget.mineData.right}
-// bottom = ${widget.mineData.bottom}''');
-    }
-
     if (oldWidget.mineData.active != widget.mineData.active) {
       if (widget.mineData.active) {
-        active.forward();
         if (!widget.mineData.top) top.forward();
         if (!widget.mineData.left) left.forward();
         if (!widget.mineData.right) right.forward();
@@ -80,7 +64,6 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
         if (widget.mineData.bottomLeft) bottomLeft.forward();
         if (widget.mineData.bottomRight) bottomRight.forward();
       } else {
-        active.reverse();
         top.reverse();
         left.reverse();
         right.reverse();
@@ -116,16 +99,19 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    active.dispose();
+    top.dispose();
+    left.dispose();
+    right.dispose();
+    bottom.dispose();
+    topLeft.dispose();
+    topRight.dispose();
+    bottomLeft.dispose();
+    bottomRight.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final topAndLeft = !widget.mineData.top && !widget.mineData.left;
-    final topAndRight = !widget.mineData.top && !widget.mineData.right;
-    final bottomAndLeft = !widget.mineData.bottom && !widget.mineData.left;
-    final bottomAndRight = !widget.mineData.bottom && !widget.mineData.right;
     return AnimatedBuilder(
       animation: animations,
       builder: (_, __) => ClipPath(
@@ -142,18 +128,14 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
-                  topLeft: topAndLeft
-                      ? Radius.circular(active.animation.value)
-                      : Radius.zero,
-                  topRight: topAndRight
-                      ? Radius.circular(active.animation.value)
-                      : Radius.zero,
-                  bottomLeft: bottomAndLeft
-                      ? Radius.circular(active.animation.value)
-                      : Radius.zero,
-                  bottomRight: bottomAndRight
-                      ? Radius.circular(active.animation.value)
-                      : Radius.zero,
+                  topLeft: Radius.circular(
+                      min(top.animation.value, left.animation.value)),
+                  topRight: Radius.circular(
+                      min(top.animation.value, right.animation.value)),
+                  bottomLeft: Radius.circular(
+                      min(bottom.animation.value, left.animation.value)),
+                  bottomRight: Radius.circular(
+                      min(bottom.animation.value, right.animation.value)),
                 ),
                 color: Theme.of(context).primaryColor,
               ),
@@ -223,7 +205,6 @@ class CornerClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(CornerClipper oldClipper) {
-    //TODO: probably needs refactoring
     return true;
   }
 }
@@ -234,16 +215,11 @@ class MyAnimation {
 
   MyAnimation(TickerProvider parent) {
     animationController = AnimationController(
-      duration: Duration(milliseconds: 2000),
+      duration: Duration(milliseconds: 300),
       vsync: parent,
     );
 
-    animation = Tween(begin: 0.0, end: 10.0).animate(
-      CurvedAnimation(
-        parent: animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
+    animation = Tween(begin: 0.0, end: 10.0).animate(animationController);
   }
 
   void dispose() {

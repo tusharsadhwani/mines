@@ -1,5 +1,3 @@
-import 'dart:math' show max;
-
 import 'package:flutter/material.dart';
 import 'package:minesweeper/models/mine_data.dart';
 
@@ -42,15 +40,7 @@ class _MinesState extends State<Mines> {
     });
   }
 
-  // void printMines() {
-  //   for (int i = 0; i < rows; i++) {
-  //     print(matrix[i].map((e) => e.active ? 1 : 0).toList());
-  //   }
-  // }
-
   void recalculateSides() {
-    print('recalculating sides...');
-    // printMines();
     for (int row = 0; row < rows; row++) {
       for (int col = 0; col < cols; col++) {
         final mineData = matrix[row][col];
@@ -141,7 +131,6 @@ class _MinesState extends State<Mines> {
               child: Mine(
                 mineData: matrix[row][col],
                 toggleMine: () => toggleMine(index),
-                special: index == 6,
               ),
             );
           }),
