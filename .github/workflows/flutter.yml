@@ -1,0 +1,29 @@
+name: Flutter deploy
+
+on:
+  push:
+    branches: [ master, dev ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Flutter
+    - uses: subosito/flutter-action@v1
+      with:
+        channel: 'beta'
+    
+    - name: Build
+      run: |
+        flutter pub get
+        flutter test
+        flutter build web
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        publish_dir: ./build/web
