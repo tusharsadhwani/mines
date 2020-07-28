@@ -39474,11 +39474,11 @@ s.push(new U.nv("",!1,!0,q,q,q,!1,q,C.a9,C.l,"",!0,!1,q,C.b5))
 return!1}return!0}}
 F.vZ.prototype={
 M:function(a){var s=null,r=V.UI(s,C.a0,s,s,s,s,s,s),q=A.eJ(s,s,C.i_,s,s,s,s,s,s,s,s,24,s,s,s,s,!0,s,s,s,s,s,s),p=A.eJ(s,s,C.i_,s,s,s,s,s,s,s,s,s,s,s,s,s,!0,s,s,s,s,s,s),o=A.eJ(s,s,C.i_,s,s,s,s,s,s,s,s,s,s,C.nj,s,s,!0,s,s,s,s,s,s)
-return new S.of(new F.ov(s),"Minesweeper",X.Wq(C.j,r,s,C.kc,new Y.k9(C.kc,s,s,q,s),C.i_,C.kc,R.Tu(A.eJ(s,s,C.j,s,s,s,s,s,s,s,s,s,s,s,s,s,!0,s,s,s,s,s,s),A.eJ(s,s,C.j,s,s,s,s,s,s,s,s,s,s,s,s,s,!0,s,s,s,s,s,s),s,s,p,o,s,s,s,s,s,A.eJ(s,s,C.j,s,s,s,s,s,s,s,s,s,s,s,s,s,!0,s,s,s,s,s,s),s),X.a1v()),s)}}
+return new S.of(new F.ov(s),"Flutter Demo",X.Wq(C.j,r,s,C.kc,new Y.k9(C.kc,s,s,q,s),C.i_,C.kc,R.Tu(A.eJ(s,s,C.j,s,s,s,s,s,s,s,s,s,s,s,s,s,!0,s,s,s,s,s,s),A.eJ(s,s,C.j,s,s,s,s,s,s,s,s,s,s,s,s,s,!0,s,s,s,s,s,s),s,s,p,o,s,s,s,s,s,A.eJ(s,s,C.j,s,s,s,s,s,s,s,s,s,s,s,s,s,!0,s,s,s,s,s,s),s),X.a1v()),s)}}
 F.ov.prototype={
 aG:function(){return new F.B2(C.m)}}
 F.B2.prototype={
-M:function(a){var s=null,r=L.Wn("Minesweeper",s)
+M:function(a){var s=null,r=L.Wn("Mines",s)
 return new M.pk(new E.mL(r,new P.ac(1/0,56),s),new T.iq(C.aA,s,s,new Q.oq(s),s),s)}}
 S.iP.prototype={}
 O.op.prototype={
