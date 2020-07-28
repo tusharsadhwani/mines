@@ -14,21 +14,7 @@ class _MinesState extends State<Mines> {
 
   List<List<MineData>> matrix;
 
-  // mines[index] might be too slow
-  List<MineData> get mines {
-    return [
-      for (var row in matrix) ...row,
-    ];
-  }
-
-  List<int> listToIndices(int index) {
-    return [index ~/ cols, index % cols];
-  }
-
-  void toggleMine(int index) {
-    final indices = listToIndices(index);
-    final row = indices[0], col = indices[1];
-
+  void toggleMine(int row, int col) {
     final mineData = matrix[row][col];
 
     final newMineData = MineData(
@@ -114,26 +100,33 @@ class _MinesState extends State<Mines> {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 5 / 7,
-      child: GridView.builder(
-          padding: EdgeInsets.all(8.0),
-          shrinkWrap: true,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: AspectRatio(
+        aspectRatio: 5 / 7,
+        child: GridView.builder(
+          gridDelegate:
+              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cols),
           itemCount: rows * cols,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: cols,
-          ),
           itemBuilder: (_, index) {
-            final indices = listToIndices(index);
-            final row = indices[0], col = indices[1];
-            return AspectRatio(
-              aspectRatio: 1,
-              child: Mine(
-                mineData: matrix[row][col],
-                toggleMine: () => toggleMine(index),
+            final row = index ~/ cols;
+            final col = index % cols;
+            // OverflowBox is a workaround, can be removed once the
+            // bug in flutter engine is fixed:
+            // https://stackoverflow.com/a/63099805/6573778
+            return LayoutBuilder(
+              builder: (_, constraints) => OverflowBox(
+                maxHeight: constraints.maxHeight + 1.5,
+                maxWidth: constraints.maxWidth + 1.5,
+                child: Mine(
+                  mineData: matrix[row][col],
+                  toggleMine: () => toggleMine(row, col),
+                ),
               ),
             );
-          }),
+          },
+        ),
+      ),
     );
   }
 }

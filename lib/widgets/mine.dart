@@ -112,32 +112,35 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: animations,
-      builder: (_, __) => ClipPath(
-        clipper: CornerClipper(topLeft, topRight, bottomLeft, bottomRight),
-        child: Container(
-          padding: EdgeInsets.fromLTRB(
-            left.animation.value,
-            top.animation.value,
-            right.animation.value,
-            bottom.animation.value,
-          ),
-          child: GestureDetector(
-            onTap: widget.toggleMine,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(
-                      min(top.animation.value, left.animation.value)),
-                  topRight: Radius.circular(
-                      min(top.animation.value, right.animation.value)),
-                  bottomLeft: Radius.circular(
-                      min(bottom.animation.value, left.animation.value)),
-                  bottomRight: Radius.circular(
-                      min(bottom.animation.value, right.animation.value)),
+    return AspectRatio(
+      aspectRatio: 1,
+      child: AnimatedBuilder(
+        animation: animations,
+        builder: (_, __) => ClipPath(
+          clipper: CornerClipper(topLeft, topRight, bottomLeft, bottomRight),
+          child: Container(
+            padding: EdgeInsets.fromLTRB(
+              left.animation.value,
+              top.animation.value,
+              right.animation.value,
+              bottom.animation.value,
+            ),
+            child: GestureDetector(
+              onTap: widget.toggleMine,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(
+                        min(top.animation.value, left.animation.value)),
+                    topRight: Radius.circular(
+                        min(top.animation.value, right.animation.value)),
+                    bottomLeft: Radius.circular(
+                        min(bottom.animation.value, left.animation.value)),
+                    bottomRight: Radius.circular(
+                        min(bottom.animation.value, right.animation.value)),
+                  ),
+                  color: Theme.of(context).primaryColor,
                 ),
-                color: Theme.of(context).primaryColor,
               ),
             ),
           ),
@@ -215,11 +218,16 @@ class MyAnimation {
 
   MyAnimation(TickerProvider parent) {
     animationController = AnimationController(
-      duration: Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 200),
       vsync: parent,
     );
 
-    animation = Tween(begin: 0.0, end: 10.0).animate(animationController);
+    animation = Tween(begin: 0.0, end: 10.0).animate(
+      CurvedAnimation(
+        parent: animationController,
+        curve: Curves.easeInQuad,
+      ),
+    );
   }
 
   void dispose() {
