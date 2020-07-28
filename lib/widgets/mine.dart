@@ -15,7 +15,7 @@ class Mine extends StatefulWidget {
 }
 
 class _MineState extends State<Mine> with TickerProviderStateMixin {
-  MyAnimation top,
+  MineAnimation top,
       left,
       right,
       bottom,
@@ -23,23 +23,25 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
       topRight,
       bottomLeft,
       bottomRight;
-
-  MyChangeNotifier animations;
+  MineAnimationsChangeNotifier animations;
+  double padding;
 
   @override
   void initState() {
     super.initState();
+    //TODO: make padding based on mine width
+    padding = 10;
 
-    top = MyAnimation(this);
-    left = MyAnimation(this);
-    right = MyAnimation(this);
-    bottom = MyAnimation(this);
-    topLeft = MyAnimation(this);
-    topRight = MyAnimation(this);
-    bottomLeft = MyAnimation(this);
-    bottomRight = MyAnimation(this);
+    top = MineAnimation(vsync: this, padding: padding);
+    left = MineAnimation(vsync: this, padding: padding);
+    right = MineAnimation(vsync: this, padding: padding);
+    bottom = MineAnimation(vsync: this, padding: padding);
+    topLeft = MineAnimation(vsync: this, padding: padding);
+    topRight = MineAnimation(vsync: this, padding: padding);
+    bottomLeft = MineAnimation(vsync: this, padding: padding);
+    bottomRight = MineAnimation(vsync: this, padding: padding);
 
-    animations = MyChangeNotifier();
+    animations = MineAnimationsChangeNotifier();
 
     top.addListener(animations.update);
     left.addListener(animations.update);
@@ -131,13 +133,17 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(
-                        min(top.animation.value, left.animation.value)),
+                      min(top.animation.value, left.animation.value),
+                    ),
                     topRight: Radius.circular(
-                        min(top.animation.value, right.animation.value)),
+                      min(top.animation.value, right.animation.value),
+                    ),
                     bottomLeft: Radius.circular(
-                        min(bottom.animation.value, left.animation.value)),
+                      min(bottom.animation.value, left.animation.value),
+                    ),
                     bottomRight: Radius.circular(
-                        min(bottom.animation.value, right.animation.value)),
+                      min(bottom.animation.value, right.animation.value),
+                    ),
                   ),
                   color: Theme.of(context).primaryColor,
                 ),
@@ -151,7 +157,7 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
 }
 
 class CornerClipper extends CustomClipper<Path> {
-  MyAnimation topLeft, topRight, bottomLeft, bottomRight;
+  MineAnimation topLeft, topRight, bottomLeft, bottomRight;
   CornerClipper(this.topLeft, this.topRight, this.bottomLeft, this.bottomRight);
 
   @override
@@ -212,17 +218,18 @@ class CornerClipper extends CustomClipper<Path> {
   }
 }
 
-class MyAnimation {
+class MineAnimation {
   AnimationController animationController;
   Animation<double> animation;
+  final double padding;
 
-  MyAnimation(TickerProvider parent) {
+  MineAnimation({TickerProvider vsync, this.padding}) {
     animationController = AnimationController(
       duration: Duration(milliseconds: 200),
-      vsync: parent,
+      vsync: vsync,
     );
 
-    animation = Tween(begin: 0.0, end: 10.0).animate(
+    animation = Tween(begin: 0.0, end: padding).animate(
       CurvedAnimation(
         parent: animationController,
         curve: Curves.easeInQuad,
@@ -255,7 +262,7 @@ class MyAnimation {
   }
 }
 
-class MyChangeNotifier extends ChangeNotifier {
+class MineAnimationsChangeNotifier extends ChangeNotifier {
   void update() {
     notifyListeners();
   }
