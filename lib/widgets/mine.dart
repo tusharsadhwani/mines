@@ -7,8 +7,13 @@ import '../models/mine_data.dart';
 class Mine extends StatefulWidget {
   final MineData mineData;
   final void Function() toggleMine;
+  final double padding;
 
-  Mine({@required this.mineData, @required this.toggleMine});
+  Mine({
+    @required this.mineData,
+    @required this.toggleMine,
+    @required this.padding,
+  });
 
   @override
   _MineState createState() => _MineState();
@@ -24,22 +29,19 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
       bottomLeft,
       bottomRight;
   MineAnimationsChangeNotifier animations;
-  double padding;
 
   @override
   void initState() {
     super.initState();
-    //TODO: make padding based on mine width
-    padding = 10;
 
-    top = MineAnimation(vsync: this, padding: padding);
-    left = MineAnimation(vsync: this, padding: padding);
-    right = MineAnimation(vsync: this, padding: padding);
-    bottom = MineAnimation(vsync: this, padding: padding);
-    topLeft = MineAnimation(vsync: this, padding: padding);
-    topRight = MineAnimation(vsync: this, padding: padding);
-    bottomLeft = MineAnimation(vsync: this, padding: padding);
-    bottomRight = MineAnimation(vsync: this, padding: padding);
+    top = MineAnimation(vsync: this, padding: widget.padding);
+    left = MineAnimation(vsync: this, padding: widget.padding);
+    right = MineAnimation(vsync: this, padding: widget.padding);
+    bottom = MineAnimation(vsync: this, padding: widget.padding);
+    topLeft = MineAnimation(vsync: this, padding: widget.padding);
+    topRight = MineAnimation(vsync: this, padding: widget.padding);
+    bottomLeft = MineAnimation(vsync: this, padding: widget.padding);
+    bottomRight = MineAnimation(vsync: this, padding: widget.padding);
 
     animations = MineAnimationsChangeNotifier();
 
@@ -225,14 +227,14 @@ class MineAnimation {
 
   MineAnimation({TickerProvider vsync, this.padding}) {
     animationController = AnimationController(
-      duration: Duration(milliseconds: 200),
+      duration: Duration(milliseconds: 300),
       vsync: vsync,
     );
 
     animation = Tween(begin: 0.0, end: padding).animate(
       CurvedAnimation(
         parent: animationController,
-        curve: Curves.easeInQuad,
+        curve: Curves.easeInOutQuad,
       ),
     );
   }

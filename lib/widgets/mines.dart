@@ -105,8 +105,10 @@ class _MinesState extends State<Mines> {
       child: AspectRatio(
         aspectRatio: 5 / 7,
         child: GridView.builder(
-          gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cols),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: cols,
+            childAspectRatio: 1,
+          ),
           itemCount: rows * cols,
           itemBuilder: (_, index) {
             final row = index ~/ cols;
@@ -121,6 +123,7 @@ class _MinesState extends State<Mines> {
                 child: Mine(
                   mineData: matrix[row][col],
                   toggleMine: () => toggleMine(row, col),
+                  padding: constraints.maxWidth * 0.1,
                 ),
               ),
             );
