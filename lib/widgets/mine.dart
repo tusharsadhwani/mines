@@ -28,6 +28,9 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
       topRight,
       bottomLeft,
       bottomRight;
+
+  Map<String, MineAnimation> edges, corners;
+
   MineAnimationsChangeNotifier animations;
 
   @override
@@ -38,79 +41,39 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
     left = MineAnimation(vsync: this, padding: widget.padding);
     right = MineAnimation(vsync: this, padding: widget.padding);
     bottom = MineAnimation(vsync: this, padding: widget.padding);
+    edges = {'top': top, 'left': left, 'right': right, 'bottom': bottom};
+
     topLeft = MineAnimation(vsync: this, padding: widget.padding);
     topRight = MineAnimation(vsync: this, padding: widget.padding);
     bottomLeft = MineAnimation(vsync: this, padding: widget.padding);
     bottomRight = MineAnimation(vsync: this, padding: widget.padding);
+    corners = {
+      'topLeft': topLeft,
+      'topRight': topRight,
+      'bottomLeft': bottomLeft,
+      'bottomRight': bottomRight,
+    };
 
     animations = MineAnimationsChangeNotifier();
 
-    top.addListener(animations.update);
-    left.addListener(animations.update);
-    right.addListener(animations.update);
-    bottom.addListener(animations.update);
-    topLeft.addListener(animations.update);
-    topRight.addListener(animations.update);
-    bottomLeft.addListener(animations.update);
-    bottomRight.addListener(animations.update);
+    edges.forEach((_, edge) => edge.addListener(animations.update));
+    corners.forEach((_, corner) => corner.addListener(animations.update));
   }
 
   @override
   void didUpdateWidget(Mine oldWidget) {
-    if (oldWidget.mineData.active != widget.mineData.active) {
-      if (widget.mineData.active) {
-        if (!widget.mineData.top) top.forward();
-        if (!widget.mineData.left) left.forward();
-        if (!widget.mineData.right) right.forward();
-        if (!widget.mineData.bottom) bottom.forward();
-        if (widget.mineData.topLeft) topLeft.forward();
-        if (widget.mineData.topRight) topRight.forward();
-        if (widget.mineData.bottomLeft) bottomLeft.forward();
-        if (widget.mineData.bottomRight) bottomRight.forward();
-      } else {
-        top.reverse();
-        left.reverse();
-        right.reverse();
-        bottom.reverse();
-        topLeft.reverse();
-        topRight.reverse();
-        bottomLeft.reverse();
-        bottomRight.reverse();
-      }
-    } else {
-      if (widget.mineData.active) {
-        if (!widget.mineData.top) top.forward();
-        if (!widget.mineData.left) left.forward();
-        if (!widget.mineData.right) right.forward();
-        if (!widget.mineData.bottom) bottom.forward();
-        if (widget.mineData.topLeft) topLeft.forward();
-        if (widget.mineData.topRight) topRight.forward();
-        if (widget.mineData.bottomLeft) bottomLeft.forward();
-        if (widget.mineData.bottomRight) bottomRight.forward();
+    if (widget.mineData.active)
+      driveEdgesAndCorners();
+    else
+      resetEdgesAndCorners();
 
-        if (widget.mineData.top) top.reverse();
-        if (widget.mineData.left) left.reverse();
-        if (widget.mineData.right) right.reverse();
-        if (widget.mineData.bottom) bottom.reverse();
-        if (!widget.mineData.topLeft) topLeft.reverse();
-        if (!widget.mineData.topRight) topRight.reverse();
-        if (!widget.mineData.bottomLeft) bottomLeft.reverse();
-        if (!widget.mineData.bottomRight) bottomRight.reverse();
-      }
-    }
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
-    top.dispose();
-    left.dispose();
-    right.dispose();
-    bottom.dispose();
-    topLeft.dispose();
-    topRight.dispose();
-    bottomLeft.dispose();
-    bottomRight.dispose();
+    edges.forEach((_, edge) => edge.dispose());
+    corners.forEach((_, corner) => corner.dispose());
     super.dispose();
   }
 
@@ -155,6 +118,34 @@ class _MineState extends State<Mine> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  void driveEdges() {
+    edges.forEach((edgeName, edge) {
+      if (widget.mineData[edgeName])
+        edge.reverse();
+      else
+        edge.forward();
+    });
+  }
+
+  void driveCorners() {
+    corners.forEach((cornerName, corner) {
+      if (widget.mineData[cornerName])
+        corner.forward();
+      else
+        corner.reverse();
+    });
+  }
+
+  void driveEdgesAndCorners() {
+    driveEdges();
+    driveCorners();
+  }
+
+  void resetEdgesAndCorners() {
+    edges.forEach((_, edge) => edge.reverse());
+    corners.forEach((_, corner) => corner.reverse());
   }
 }
 
